@@ -13,13 +13,6 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        //const int n = 3;
-        //int m = 5;
-        //double[] x = new double[n];
-        //double[] y = new double[n];
-        //double[] a = new double[n];
-        //double[][] aMatrix = new double[n][];
-        //double[] bMatrix = new double[n];
         const int n = 5;
         double[] arrY;
         double[] arrX;
@@ -30,19 +23,6 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
             SetDefaultValue();
-            //for (int i = 0; i < 3; i++)
-            //{
-            //    aMatrix[i] = new double[n];
-            //}
-
-            //for (int i = 0; i < 3; i++)
-            //{
-            //    bMatrix[i] = 0;
-            //    for (int j = 0; j < 3; j++)
-            //    {
-            //        aMatrix[i][j] = 0;
-            //    }
-            //}
         }
 
         private void btn1_Click(object sender, EventArgs e)
@@ -51,8 +31,8 @@ namespace WindowsFormsApp1
             arrX = new double[n];
             arrY = new double[n];
             GetDataForm();
-            phi1 = arrX;
-            phi2 = DivX(arrX);
+            phi1 = SquareX(arrX);
+            phi2 = Lnx(arrX);
 
             LeastSquares(arrX, arrY, phi1, phi2, out a0, out a1, out a2);
             double[] appY = CountApprY(a0, a1, a2, phi1, phi2, arrX.Length);
@@ -78,17 +58,17 @@ namespace WindowsFormsApp1
 
         private void SetDefaultValue()
         {
-            textBox1.Text = "0";
-            textBox2.Text = "0,2";
-            textBox3.Text = "0,4";
-            textBox4.Text = "0,6";
-            textBox5.Text = "0,8";
+            textBox1.Text = "1";
+            textBox2.Text = "1,2";
+            textBox3.Text = "1,4";
+            textBox4.Text = "1,6";
+            textBox5.Text = "1,8";
 
-            textBox10.Text = "5,1";
-            textBox9.Text = "4,75";
-            textBox8.Text = "4,53";
-            textBox7.Text = "4,4";
-            textBox6.Text = "4,46";
+            textBox10.Text = "11,9";
+            textBox9.Text = "12,3";
+            textBox8.Text = "12,5";
+            textBox7.Text = "13,1";
+            textBox6.Text = "13,3";
         }
         //Метод наименьших квадратов
         public void LeastSquares(double[] x, double[] y, double[] phi1, double[] phi2, out double a0, out double a1, out double a2)
@@ -340,76 +320,16 @@ namespace WindowsFormsApp1
             return phi;
         }
 
+        private double[] Lnx(double[] arX)
+        {
+            double[] phi = new double[arX.Length];
+            for (int i = 0; i < arX.Length - 1; i++)
+            {
+                phi[i] = Math.Log(arX[i]);
+            }
+            return phi;
+        }
+
         #endregion
-
-
-
-
-
-        //void pryamoy_hod()
-        //{
-        //    double c, max;
-        //    int index;
-        //    for (int k = 0; k < n; k++)
-        //    {
-        //        for (int p = k + 1; p < n; p++)
-        //        {
-        //            max = Math.Abs(aMatrix[k][k]);
-        //            index = k;
-        //            const double eps = 0.00001;
-        //            // Поиск строки с максимальным a[i][k]
-        //            for (int i = k + 1; i < n; i++)
-        //            {
-        //                if (Math.Abs(aMatrix[i][k]) > max)
-        //                {
-        //                    max = Math.Abs(aMatrix[i][k]);
-        //                    index = i;
-        //                }
-        //            }
-        //            // Перестановка строк
-        //            if (max < eps)
-        //            {
-        //                //cout << "Решение получить невозможно из-за нулевого столбца ";
-        //                //cout << index << " матрицы A" << endl;
-        //                return;
-        //            }
-        //            double temp;
-        //            for (int j = 0; j < n; j++)
-        //            {
-        //                temp = aMatrix[k][j];
-        //                aMatrix[k][j] = aMatrix[index][j];
-        //                aMatrix[index][j] = temp;
-        //            }
-        //            temp = bMatrix[k];
-        //            bMatrix[k] = bMatrix[index];
-        //            bMatrix[index] = temp;
-        //            c = aMatrix[p][k] / aMatrix[k][k];
-        //            bMatrix[p] = bMatrix[p] - c * bMatrix[k];
-        //            for (int l = k; l < n; l++)
-        //            {
-        //                aMatrix[p][l] = aMatrix[p][l] - c * aMatrix[k][l];
-        //            }
-        //        }
-        //    }
-
-        //}
-
-        //void obrat_hod()
-        //{
-        //    a = new double[3] { 0, 0, 0 };
-        //    double s = 0;
-        //    for (int k = n - 1; k >= 0; k--)
-        //    {
-        //        for (int i = n - 1; i > k - 1; i--)
-        //        {
-        //            s += aMatrix[k][i] * a[i];
-        //        }
-        //        a[k] = (bMatrix[k] - s) / aMatrix[k][k];
-        //        s = 0;
-        //    }
-        //}
-
-
-
     }
 }

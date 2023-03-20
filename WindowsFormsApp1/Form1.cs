@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace WindowsFormsApp1
 {
@@ -22,54 +23,121 @@ namespace WindowsFormsApp1
         public Form1()
         {
             InitializeComponent();
-            SetDefaultValue();
+            InitilizeValue();
+        }
+
+        private void InitilizeValue()
+        {
+            //addColumn(8);
+            
         }
 
         private void btn1_Click(object sender, EventArgs e)
         {
-            double a0, a1, a2 = 0.0;
-            arrX = new double[n];
-            arrY = new double[n];
-            GetDataForm();
-            phi1 = SquareX(arrX);
-            phi2 = Lnx(arrX);
+            arrX = new double[dataX.ColumnCount];
+            arrY = new double[dataX.ColumnCount];
 
-            LeastSquares(arrX, arrY, phi1, phi2, out a0, out a1, out a2);
-            double[] appY = CountApprY(a0, a1, a2, phi1, phi2, arrX.Length);
+            for (int i = 0; i < dataX.RowCount; i++)
+            {
+                for (int j = 0; j < dataX.ColumnCount; j++)
+                {
+                    if (i != 1)
+                        arrX[j] = Convert.ToDouble((dataX[j, i].Value.ToString()));
+                    else
+                        arrY[j] = Convert.ToDouble((dataX[j, i].Value.ToString()));
+                }
+            }
 
-            OutData(a0, a1, a2);
-            DrawChart(arrX, arrY, appY);
+
+            var averageX = arrX.Average();
+            var averageY = arrY.Average();
+            var multyAverageXY = averageX * averageY;
+
+            var averageXxY = SumAllXY(arrX, arrY);
+
+            var sumX2 = Average2Collection(arrX);
+            var sumY2 = Average2Collection(arrY);
+
+            var standardDeviationX = Math.Sqrt(sumX2 - averageX * averageX);
+            var standardDeviationY = Math.Sqrt(sumY2 - averageY * averageY);
+
+            var correlationCoefficient = (averageXxY - multyAverageXY) / (standardDeviationX * standardDeviationY);
+
+            // Посчитали по Y*X
+            var PyxResult = Pyx(averageXxY, multyAverageXY, standardDeviationX);
+            var ByxResult = Byx(averageY, averageX, PyxResult);
+
+            // Посчитали по X*Y
+            var PxyResult = Pyx(averageXxY, multyAverageXY, standardDeviationY);
+            var BxyResult = Byx(averageX, averageY, PxyResult);
+
+            var Yx = LinearRegrassion(PyxResult, ByxResult, arrX);
+            var Xy = LinearRegrassion(PxyResult, BxyResult, arrY);
+
+            OutData(correlationCoefficient);
+            OutResultFunctionYx(PyxResult, ByxResult);
+            OutResultFunctionXy(PxyResult, BxyResult);
+            DrawChart(arrX, Yx, Xy, arrY);
         }
 
-        private void GetDataForm()
+        private void OutResultFunctionYx(double P, double B)
         {
-            arrX[0] = Double.Parse(textBox1.Text);
-            arrX[1] = Double.Parse(textBox2.Text);
-            arrX[2] = Double.Parse(textBox3.Text);
-            arrX[3] = Double.Parse(textBox4.Text);
-            arrX[4] = Double.Parse(textBox5.Text);
-
-            arrY[0] = Double.Parse(textBox10.Text);
-            arrY[1] = Double.Parse(textBox9.Text);
-            arrY[2] = Double.Parse(textBox8.Text);
-            arrY[3] = Double.Parse(textBox7.Text);
-            arrY[4] = Double.Parse(textBox6.Text);
+            Yx.Text = String.Format("{0:F3}*y + ({1:F3})", P, B);
         }
 
-        private void SetDefaultValue()
+        private void OutResultFunctionXy(double P, double B)
         {
-            textBox1.Text = "1";
-            textBox2.Text = "1,2";
-            textBox3.Text = "1,4";
-            textBox4.Text = "1,6";
-            textBox5.Text = "1,8";
-
-            textBox10.Text = "11,9";
-            textBox9.Text = "12,3";
-            textBox8.Text = "12,5";
-            textBox7.Text = "13,1";
-            textBox6.Text = "13,3";
+            Xy.Text = String.Format("{0:F3}*y + ({1:F3})", P, B);
         }
+
+        //Значения линейной регрессии
+        private double[] LinearRegrassion(double P, double B, double[] X)
+        {
+            var valueLinearRegression = new double[X.Length];
+            for (var i = 0; i < X.Length; i++)
+            {
+                valueLinearRegression[i] = P * X[i] + B;
+            }
+            return valueLinearRegression;
+        }
+
+
+        // Коэффициент линейной регрессии
+        private double Pyx(double averageXxY, double multyAverageXY, double standardDeviation)
+        {
+            return (averageXxY - multyAverageXY) / (standardDeviation * standardDeviation);
+        }
+
+        // Коэффициент B
+        private double Byx(double averageY, double averageX, double PLinear)
+        {
+            return averageY - averageX * PLinear;
+        }
+
+
+        private double SumAllXY(double[] arrX, double[] arrY)
+        {
+            var XxY = new double[arrX.Length];
+            for (var i = 0; i < arrX.Length; i++)
+            {
+                XxY[i] = arrX[i] * arrY[i];
+            }
+
+            return XxY.Average();
+        }
+
+        //Средне квадратическое отклонение
+        private double Average2Collection(double[] arr)
+        {
+            var arr2 = new double[arr.Length];
+            for (var i = 0; i < arr.Length; i++)
+            {
+                arr2[i] = arr[i] * arr[i];
+            }
+
+            return arr2.Average();
+        }
+
         //Метод наименьших квадратов
         public void LeastSquares(double[] x, double[] y, double[] phi1, double[] phi2, out double a0, out double a1, out double a2)
         {
@@ -234,14 +302,12 @@ namespace WindowsFormsApp1
             return apprY;
         }
 
-        public void OutData(double a0, double a1, double a2)
+        public void OutData(double coefrValue)
         {
-            textA0.Text = a0.ToString();
-            textA1.Text = a1.ToString();
-            textA2.Text = a2.ToString();
+            coefr.Text = String.Format("{0:F3}", coefrValue);
         }
 
-        public void DrawChart(double[] X, double[] Y, double[] Y1)
+        public void DrawChart(double[] X, double[] Yx, double[] Xy, double[] Y)
         {
 
             // Устанавливаем размеры и местоположение Chart
@@ -257,24 +323,24 @@ namespace WindowsFormsApp1
             chart1.ChartAreas.Add(chartArea1);
 
             // Создаем новый объект Series для хранения точек графика
-            Series series1_Point = new Series();
-            Series series1_Line = new Series();
-            Series series2 = new Series();
-            series1_Point.ChartType = SeriesChartType.Point;
-            series1_Line.ChartType = SeriesChartType.Line;
-            series2.ChartType = SeriesChartType.Line;
-            series1_Point.Color = Color.Red;
-            series1_Line.Color = Color.Red;
-            series2.Color = Color.Blue;
-            series1_Line.LegendText = "Эксперименты";
-            series1_Point.LegendText = "Эксперименты(точки)";
-            series2.LegendText = "Результаты аппроксимации";
+            Series XY_Point = new Series();
+            Series Yx_line = new Series();
+            Series Xy_line = new Series();
+            XY_Point.ChartType = SeriesChartType.Point;
+            Yx_line.ChartType = SeriesChartType.Line;
+            Xy_line.ChartType = SeriesChartType.Line;
+            XY_Point.Color = Color.Red;
+            Yx_line.Color = Color.Green;
+            Xy_line.Color = Color.Blue;
+            Yx_line.LegendText = "Линейная регрессия Yx";
+            XY_Point.LegendText = "Эксперименты(точки)";
+            Xy_line.LegendText = "Линейная регрессия Xy";
             // Добавляем точки в Series
             for (int i = 0; i < X.Length; i++)
             {
-                series1_Point.Points.AddXY(X[i], Y[i]);
-                series1_Line.Points.AddXY(X[i], Y[i]);
-                series2.Points.AddXY(X[i], Y1[i]);
+                XY_Point.Points.AddXY(X[i], Y[i]);
+                Yx_line.Points.AddXY(X[i], Yx[i]);
+                Xy_line.Points.AddXY(Xy[i], Y[i]);
             }
 
             if (chart1.Series.Count > 0)
@@ -283,9 +349,9 @@ namespace WindowsFormsApp1
             };
 
             // Добавляем Series в Chart
-            chart1.Series.Add(series1_Point);
-            chart1.Series.Add(series1_Line);
-            chart1.Series.Add(series2);
+            chart1.Series.Add(XY_Point);
+            chart1.Series.Add(Yx_line);
+            chart1.Series.Add(Xy_line);
         }
 
         #region Функции которые могут быть расчитаны в программе
@@ -331,5 +397,44 @@ namespace WindowsFormsApp1
         }
 
         #endregion
+
+        private void addColumn(int colNum)
+        {
+            if (colNum != 0)
+            {
+                for (int i = 0; i < colNum; i++)
+                {
+                    DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn();
+                    column.HeaderText = "I" + (i + 1);
+                    column.Width = 40;
+                    dataX.Columns.Add(column);
+                };
+                // Добавляем две строки в DataGridView
+                DataGridViewRow rowX = new DataGridViewRow();
+                DataGridViewRow rowY = new DataGridViewRow();
+                rowX.CreateCells(dataX);
+                rowX.HeaderCell.Value = "X";
+                rowY.CreateCells(dataX);
+                rowY.HeaderCell.Value = "Y";
+                dataX.Rows.Add(rowX);
+                dataX.Rows.Add(rowY);
+            }
+        }
+
+        private void ExpNumCount_ValueChanged(object sender, EventArgs e)
+        {
+            int ColNum = Convert.ToInt32(ExpNumCount.Value.ToString());
+            // Удаляем все столбцы из dataX
+            for (int i = dataX.Columns.Count - 1; i >= 0; i--)
+            {
+                dataX.Columns.Remove(dataX.Columns[i]);
+            }
+            addColumn(ColNum);
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

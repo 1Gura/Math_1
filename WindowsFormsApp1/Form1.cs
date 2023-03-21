@@ -48,9 +48,10 @@ namespace WindowsFormsApp1
                 }
             }
 
-
+            // Срееднее по Х и Y
             var averageX = arrX.Average();
             var averageY = arrY.Average();
+
             var multyAverageXY = averageX * averageY;
 
             var averageXxY = SumAllXY(arrX, arrY);
@@ -102,19 +103,19 @@ namespace WindowsFormsApp1
         }
 
 
-        // Коэффициент линейной регрессии
+        // Коэффициент Р линейной регрессии
         private double Pyx(double averageXxY, double multyAverageXY, double standardDeviation)
         {
             return (averageXxY - multyAverageXY) / (standardDeviation * standardDeviation);
         }
 
-        // Коэффициент B
+        // Коэффициент B линейной регрессии
         private double Byx(double averageY, double averageX, double PLinear)
         {
             return averageY - averageX * PLinear;
         }
 
-
+        // Произведение XY
         private double SumAllXY(double[] arrX, double[] arrY)
         {
             var XxY = new double[arrX.Length];

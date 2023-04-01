@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.btn1 = new System.Windows.Forms.Button();
             this.ExpNumCount = new System.Windows.Forms.NumericUpDown();
@@ -39,10 +39,10 @@
             this.ExpNum = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.r = new System.Windows.Forms.Label();
             this.coefr = new System.Windows.Forms.TextBox();
-            this.Yx = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.Xy = new System.Windows.Forms.TextBox();
+            this.Yx = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.Xy = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ExpNumCount)).BeginInit();
             this.grExpData.SuspendLayout();
@@ -51,10 +51,10 @@
             // 
             // chart1
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
+            chartArea4.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.chart1.Legends.Add(legend4);
             this.chart1.Location = new System.Drawing.Point(567, 12);
             this.chart1.Name = "chart1";
             this.chart1.Size = new System.Drawing.Size(919, 511);
@@ -136,23 +136,16 @@
             this.r.AutoSize = true;
             this.r.Location = new System.Drawing.Point(9, 273);
             this.r.Name = "r";
-            this.r.Size = new System.Drawing.Size(140, 13);
+            this.r.Size = new System.Drawing.Size(192, 13);
             this.r.TabIndex = 31;
-            this.r.Text = "Коэффициент корреляции";
+            this.r.Text = "Уравнение квадратичной регрессии";
             // 
             // coefr
             // 
             this.coefr.Location = new System.Drawing.Point(12, 289);
             this.coefr.Name = "coefr";
-            this.coefr.Size = new System.Drawing.Size(137, 20);
+            this.coefr.Size = new System.Drawing.Size(336, 20);
             this.coefr.TabIndex = 32;
-            // 
-            // Yx
-            // 
-            this.Yx.Location = new System.Drawing.Point(12, 344);
-            this.Yx.Name = "Yx";
-            this.Yx.Size = new System.Drawing.Size(137, 20);
-            this.Yx.TabIndex = 34;
             // 
             // label1
             // 
@@ -164,12 +157,12 @@
             this.label1.Text = "Уравнение Лин. Рег. Yx";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
-            // Xy
+            // Yx
             // 
-            this.Xy.Location = new System.Drawing.Point(12, 394);
-            this.Xy.Name = "Xy";
-            this.Xy.Size = new System.Drawing.Size(137, 20);
-            this.Xy.TabIndex = 36;
+            this.Yx.Location = new System.Drawing.Point(12, 344);
+            this.Yx.Name = "Yx";
+            this.Yx.Size = new System.Drawing.Size(137, 20);
+            this.Yx.TabIndex = 34;
             // 
             // label2
             // 
@@ -179,6 +172,13 @@
             this.label2.Size = new System.Drawing.Size(128, 13);
             this.label2.TabIndex = 35;
             this.label2.Text = "Уравнение Лин. Рег. Xy";
+            // 
+            // Xy
+            // 
+            this.Xy.Location = new System.Drawing.Point(12, 394);
+            this.Xy.Name = "Xy";
+            this.Xy.Size = new System.Drawing.Size(137, 20);
+            this.Xy.TabIndex = 36;
             // 
             // Form1
             // 
@@ -218,10 +218,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ExpNum;
         private System.Windows.Forms.Label r;
         private System.Windows.Forms.TextBox coefr;
-        private System.Windows.Forms.TextBox Yx;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox Xy;
+        private System.Windows.Forms.TextBox Yx;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox Xy;
     }
 }
 

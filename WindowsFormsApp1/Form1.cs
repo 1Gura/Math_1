@@ -29,7 +29,7 @@ namespace WindowsFormsApp1
         private void InitilizeValue()
         {
             //addColumn(8);
-            
+
         }
 
         private void btn1_Click(object sender, EventArgs e)
@@ -49,40 +49,72 @@ namespace WindowsFormsApp1
             }
 
 
-            var averageX = arrX.Average();
-            var averageY = arrY.Average();
-            var multyAverageXY = averageX * averageY;
+            //var averageX = arrX.Average();
+            //var averageY = arrY.Average();
+            //var multyAverageXY = averageX * averageY;
 
-            var averageXxY = SumAllXY(arrX, arrY);
+            //var averageXxY = GetAverageXxY(arrX, arrY);
 
-            var sumX2 = Average2Collection(arrX);
-            var sumY2 = Average2Collection(arrY);
+            //var sumX2 = Average2Collection(arrX);
+            //var sumY2 = Average2Collection(arrY);
 
-            var standardDeviationX = Math.Sqrt(sumX2 - averageX * averageX);
-            var standardDeviationY = Math.Sqrt(sumY2 - averageY * averageY);
+            //var standardDeviationX = Math.Sqrt(sumX2 - averageX * averageX);
+            //var standardDeviationY = Math.Sqrt(sumY2 - averageY * averageY);
 
-            var correlationCoefficient = (averageXxY - multyAverageXY) / (standardDeviationX * standardDeviationY);
+            //var correlationCoefficient = (averageXxY - multyAverageXY) / (standardDeviationX * standardDeviationY);
 
-            // Посчитали по Y*X
-            var PyxResult = Pyx(averageXxY, multyAverageXY, standardDeviationX);
-            var ByxResult = Byx(averageY, averageX, PyxResult);
+            //// Посчитали по Y*X
+            //var PyxResult = Pyx(averageXxY, multyAverageXY, standardDeviationX);
+            //var ByxResult = Byx(averageY, averageX, PyxResult);
 
-            // Посчитали по X*Y
-            var PxyResult = Pyx(averageXxY, multyAverageXY, standardDeviationY);
-            var BxyResult = Byx(averageX, averageY, PxyResult);
+            //// Посчитали по X*Y
+            //var PxyResult = Pyx(averageXxY, multyAverageXY, standardDeviationY);
+            //var BxyResult = Byx(averageX, averageY, PxyResult);
 
-            var Yx = LinearRegrassion(PyxResult, ByxResult, arrX);
-            var Xy = LinearRegrassion(PxyResult, BxyResult, arrY);
+            //var Yx = LinearRegrassion(PyxResult, ByxResult, arrX);
+            //var Xy = LinearRegrassion(PxyResult, BxyResult, arrY);
 
-            OutData(correlationCoefficient);
-            OutResultFunctionYx(PyxResult, ByxResult);
-            OutResultFunctionXy(PxyResult, BxyResult);
-            DrawChart(arrX, Yx, Xy, arrY);
+            var sumXi = arrX.Sum();
+            var sumY = arrY.Sum();
+            var sumXiSquar = SumXiSquare(arrX, 2);
+            var sumXi3 = SumXiSquare(arrX, 3);
+            var sumXi4 = SumXiSquare(arrX, 4);
+            var XxY = SumAllXY(arrX, arrY);
+            var resultXi2Yi = Xi2Yi(arrX, arrY);
+
+            var gaus = new GausMethod(3, 3);
+            gaus.Matrix[0][0] = sumXiSquar;
+            gaus.Matrix[0][1] = sumXi;
+            gaus.Matrix[0][2] = arrX.Length;
+            gaus.Matrix[1][0] = sumXi3;
+            gaus.Matrix[1][1] = sumXiSquar;
+            gaus.Matrix[1][2] = sumXi;
+            gaus.Matrix[2][0] = sumXi4;
+            gaus.Matrix[2][1] = sumXi3;
+            gaus.Matrix[2][2] = sumXiSquar;
+
+            gaus.RightPart[0] = sumY;
+            gaus.RightPart[1] = XxY;
+            gaus.RightPart[2] = resultXi2Yi;
+
+            gaus.SolveMatrix();
+
+            //сохраняем ответ
+            var returnValue = new double[3];
+            returnValue[0] = gaus.Answer[0];
+            returnValue[1] = gaus.Answer[1];
+            returnValue[2] = gaus.Answer[2];
+
+            OutData(returnValue[0], returnValue[1], returnValue[2]);
+
+            var Yx = SquarRegrassion(returnValue[0], returnValue[1], returnValue[2], arrX);
+
+            DrawChart(arrX, arrY, Yx);
         }
 
         private void OutResultFunctionYx(double P, double B)
         {
-            Yx.Text = String.Format("{0:F3}*y + ({1:F3})", P, B);
+            Yx.Text = String.Format("{0:F3}*x^2 + ({1:F3})*x + {2:F3}", P, B);
         }
 
         private void OutResultFunctionXy(double P, double B)
@@ -101,6 +133,17 @@ namespace WindowsFormsApp1
             return valueLinearRegression;
         }
 
+        //Значения квадратичной регрессии
+        private double[] SquarRegrassion(double a, double b, double c, double[] X)
+        {
+            var valueSquarRegression = new double[X.Length];
+            for (var i = 0; i < X.Length; i++)
+            {
+                valueSquarRegression[i] = a * Math.Pow(X[i], 2) + b * X[i] + c;
+            }
+            return valueSquarRegression;
+        }
+
 
         // Коэффициент линейной регрессии
         private double Pyx(double averageXxY, double multyAverageXY, double standardDeviation)
@@ -115,7 +158,7 @@ namespace WindowsFormsApp1
         }
 
 
-        private double SumAllXY(double[] arrX, double[] arrY)
+        private double GetAverageXxY(double[] arrX, double[] arrY)
         {
             var XxY = new double[arrX.Length];
             for (var i = 0; i < arrX.Length; i++)
@@ -302,12 +345,12 @@ namespace WindowsFormsApp1
             return apprY;
         }
 
-        public void OutData(double coefrValue)
+        public void OutData(double a, double b, double c)
         {
-            coefr.Text = String.Format("{0:F3}", coefrValue);
+            coefr.Text = String.Format("{0:F3}*x^2 + ({1:F3})*x + {2:F3}", a,b,c);
         }
 
-        public void DrawChart(double[] X, double[] Yx, double[] Xy, double[] Y)
+        public void DrawChart(double[] X, double[] Y, double[] Yx)
         {
 
             // Устанавливаем размеры и местоположение Chart
@@ -325,22 +368,17 @@ namespace WindowsFormsApp1
             // Создаем новый объект Series для хранения точек графика
             Series XY_Point = new Series();
             Series Yx_line = new Series();
-            Series Xy_line = new Series();
             XY_Point.ChartType = SeriesChartType.Point;
             Yx_line.ChartType = SeriesChartType.Line;
-            Xy_line.ChartType = SeriesChartType.Line;
             XY_Point.Color = Color.Red;
             Yx_line.Color = Color.Green;
-            Xy_line.Color = Color.Blue;
-            Yx_line.LegendText = "Линейная регрессия Yx";
             XY_Point.LegendText = "Эксперименты(точки)";
-            Xy_line.LegendText = "Линейная регрессия Xy";
+            Yx_line.LegendText = "Квадратичная регрессия";
             // Добавляем точки в Series
             for (int i = 0; i < X.Length; i++)
             {
                 XY_Point.Points.AddXY(X[i], Y[i]);
                 Yx_line.Points.AddXY(X[i], Yx[i]);
-                Xy_line.Points.AddXY(Xy[i], Y[i]);
             }
 
             if (chart1.Series.Count > 0)
@@ -351,7 +389,6 @@ namespace WindowsFormsApp1
             // Добавляем Series в Chart
             chart1.Series.Add(XY_Point);
             chart1.Series.Add(Yx_line);
-            chart1.Series.Add(Xy_line);
         }
 
         #region Функции которые могут быть расчитаны в программе
@@ -432,9 +469,166 @@ namespace WindowsFormsApp1
             addColumn(ColNum);
         }
 
+        // Квадратичная регресия
+
+        private double SumXiSquare(double[] x, int pow)
+        {
+            var xSquare = new double[x.Length];
+            for (int i = 0; i < x.Length; i++)
+            {
+                xSquare[i] = Math.Pow(x[i], pow);
+            }
+
+            return xSquare.Sum();
+        }
+
+        private double SumAllXY(double[] arrX, double[] arrY)
+        {
+            var XxY = new double[arrX.Length];
+            for (var i = 0; i < arrX.Length; i++)
+            {
+                XxY[i] = arrX[i] * arrY[i];
+            }
+
+            return XxY.Sum();
+        }
+
+        private double Xi2Yi(double[] arrX, double[] arrY)
+        {
+            var XxY = new double[arrX.Length];
+            for (var i = 0; i < arrX.Length; i++)
+            {
+                XxY[i] = Math.Pow(arrX[i], 2) * arrY[i];
+            }
+
+            return XxY.Sum();
+        }
+
+
         private void label1_Click(object sender, EventArgs e)
         {
 
         }
+    }
+}
+
+class GausMethod
+{
+    public uint RowCount;
+    public uint ColumCount;
+    public double[][] Matrix { get; set; }
+    public double[] RightPart { get; set; }
+    public double[] Answer { get; set; }
+
+    public GausMethod(uint Row, uint Colum)
+    {
+        RightPart = new double[Row];
+        Answer = new double[Row];
+        Matrix = new double[Row][];
+        for (int i = 0; i < Row; i++)
+            Matrix[i] = new double[Colum];
+        RowCount = Row;
+        ColumCount = Colum;
+
+        //обнулим массив
+        for (int i = 0; i < Row; i++)
+        {
+            Answer[i] = 0;
+            RightPart[i] = 0;
+            for (int j = 0; j < Colum; j++)
+                Matrix[i][j] = 0;
+        }
+    }
+
+    private void SortRows(int SortIndex)
+    {
+
+        double MaxElement = Matrix[SortIndex][SortIndex];
+        int MaxElementIndex = SortIndex;
+        for (int i = SortIndex + 1; i < RowCount; i++)
+        {
+            if (Matrix[i][SortIndex] > MaxElement)
+            {
+                MaxElement = Matrix[i][SortIndex];
+                MaxElementIndex = i;
+            }
+        }
+
+        //теперь найден максимальный элемент ставим его на верхнее место
+        if (MaxElementIndex > SortIndex)//если это не первый элемент
+        {
+            double Temp;
+
+            Temp = RightPart[MaxElementIndex];
+            RightPart[MaxElementIndex] = RightPart[SortIndex];
+            RightPart[SortIndex] = Temp;
+
+            for (int i = 0; i < ColumCount; i++)
+            {
+                Temp = Matrix[MaxElementIndex][i];
+                Matrix[MaxElementIndex][i] = Matrix[SortIndex][i];
+                Matrix[SortIndex][i] = Temp;
+            }
+        }
+    }
+
+    public int SolveMatrix()
+    {
+        if (RowCount != ColumCount)
+            return 1; //нет решения
+
+        for (int i = 0; i < RowCount - 1; i++)
+        {
+            SortRows(i);
+            for (int j = i + 1; j < RowCount; j++)
+            {
+                if (Matrix[i][i] != 0) //если главный элемент не 0, то производим вычисления
+                {
+                    double MultElement = Matrix[j][i] / Matrix[i][i];
+                    for (int k = i; k < ColumCount; k++)
+                        Matrix[j][k] -= Matrix[i][k] * MultElement;
+                    RightPart[j] -= RightPart[i] * MultElement;
+                }
+                //для нулевого главного элемента просто пропускаем данный шаг
+            }
+        }
+
+        //ищем решение
+        for (int i = (int)(RowCount - 1); i >= 0; i--)
+        {
+            Answer[i] = RightPart[i];
+
+            for (int j = (int)(RowCount - 1); j > i; j--)
+                Answer[i] -= Matrix[i][j] * Answer[j];
+
+            if (Matrix[i][i] == 0)
+                if (RightPart[i] == 0)
+                    return 2; //множество решений
+                else
+                    return 1; //нет решения
+
+            Answer[i] /= Matrix[i][i];
+
+        }
+        return 0;
+    }
+
+
+
+    public override String ToString()
+    {
+        String S = "";
+        for (int i = 0; i < RowCount; i++)
+        {
+            S += "\r\n";
+            for (int j = 0; j < ColumCount; j++)
+            {
+                S += Matrix[i][j].ToString("F04") + "\t";
+            }
+
+            S += "\t" + Answer[i].ToString("F08");
+            S += "\t" + RightPart[i].ToString("F04");
+        }
+        return S;
     }
 }
